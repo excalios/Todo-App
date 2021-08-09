@@ -22,6 +22,7 @@
             </div>
         </div>
     </div>
+    <!-- XoX -->
 </template>
 
 <script lang="ts">
@@ -34,6 +35,9 @@ interface Todo {
 }
 
 @Options({
+    created: () => {
+        document.title = 'Todo List by excalios';
+    },
     data: () => {
         return {
             todos: [
