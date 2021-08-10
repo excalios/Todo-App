@@ -11,12 +11,13 @@
             :key="todo.id"
             :style="isFinished(todo.finished)"
         >
-            <h2>{{ todo.task }}</h2>
+            <h2>{{ todo.todo }}</h2>
             <div>
                 <input
                     type="checkbox"
                     name="finished"
                     v-model="todo.finished"
+                    @change="updateTodo(todo.id, todo.finished)"
                 />
                 <button @click="deleteTodo(todo.id)">X</button>
             </div>
@@ -27,9 +28,10 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
+import axios from 'axios';
 
 interface Todo {
-    id: number;
+    id: string;
     task: string;
     finished: boolean;
 }
@@ -38,25 +40,21 @@ interface Todo {
     created: () => {
         document.title = 'Todo List by excalios';
     },
+    mounted: function () {
+        axios({
+            method: 'get',
+            url: 'http://localhost:3000',
+        })
+            .then(res => {
+                this.todos = res.data.todos;
+            })
+            .catch(reason => {
+                console.log(reason);
+            });
+    },
     data: () => {
         return {
-            todos: [
-                {
-                    id: 1,
-                    task: 'Kerjain Frontend',
-                    finished: false,
-                },
-                {
-                    id: 2,
-                    task: 'Kerjain Backend',
-                    finished: false,
-                },
-                {
-                    id: 3,
-                    task: 'Deploy',
-                    finished: false,
-                },
-            ],
+            todos: [],
             newTodo: '',
         };
     },
@@ -65,21 +63,61 @@ interface Todo {
             if (!this.newTodo) {
                 return;
             }
-            this.todos = [
-                {
-                    id: this.todos[this.todos.length - 1].id + 1,
-                    task: this.newTodo,
-                    finished: false,
-                },
-                ...this.todos,
-            ];
+            axios
+                .post('http://localhost:3000', {
+                    todo: this.newTodo,
+                })
+                .then(res => {
+                    axios
+                        .get('http://localhost:3000')
+                        .then(res => {
+                            this.todos = res.data.todos;
+                        })
+                        .catch(reason => {
+                            console.log(reason);
+                        });
+                })
+                .catch(reason => {
+                    console.log(reason);
+                });
 
             this.newTodo = '';
         },
-        deleteTodo(id: number) {
-            this.todos = this.todos.filter((todo: Todo) => {
-                return todo.id !== id;
-            });
+        updateTodo(id: string, finished: boolean) {
+            axios
+                .patch(`http://localhost:3000/${id}`, {
+                    finished,
+                })
+                .then(res => {
+                    axios
+                        .get('http://localhost:3000')
+                        .then(res => {
+                            this.todos = res.data.todos;
+                        })
+                        .catch(reason => {
+                            console.log(reason);
+                        });
+                })
+                .catch(reason => {
+                    console.log(reason);
+                });
+        },
+        deleteTodo(id: string) {
+            axios
+                .delete(`http://localhost:3000/${id}`)
+                .then(res => {
+                    axios
+                        .get('http://localhost:3000')
+                        .then(res => {
+                            this.todos = res.data.todos;
+                        })
+                        .catch(reason => {
+                            console.log(reason);
+                        });
+                })
+                .catch(reason => {
+                    console.log(reason);
+                });
         },
         isFinished(status: boolean) {
             return status ? 'background: #3eaf7c' : '';

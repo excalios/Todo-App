@@ -2,10 +2,13 @@ import compression from 'compression';
 import express, { Request, Response } from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import cors from 'cors';
 
 require('dotenv').config();
 
 const app = express();
+
+app.use(cors());
 
 import './db';
 import Todo from './todo.model';
@@ -16,7 +19,7 @@ app.use(morgan('dev'));
 app.use(express.json());
 
 app.get('/', async (_req: Request, res: Response) => {
-    const todos: Array<Todo> = await Todo.query();
+    const todos: Array<Todo> = await Todo.query().orderBy('created_at', 'desc');
 
     res.status(200).json({
         todos,

@@ -11,6 +11,7 @@ export async function up(knex: Knex): Promise<void> {
             .defaultTo(knex.raw('gen_random_uuid()'));
         table.string('todo').notNullable();
         table.boolean('finished').defaultTo(false);
+        table.timestamps(true, true);
     });
 }
 
