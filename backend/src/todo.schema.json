@@ -1,0 +1,17 @@
+{
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["todo"],
+    "properties": {
+        "id": {
+            "type": "string"
+        },
+        "todo": {
+            "type": "string"
+        },
+        "finished": {
+            "type": "boolean",
+            "default": false
+        }
+    }
+}
