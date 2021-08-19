@@ -1,5 +1,5 @@
 import compression from 'compression';
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import cors from 'cors';
@@ -14,9 +14,19 @@ import './db';
 import Todo from './todo.model';
 
 app.use(compression());
-app.use(helmet());
+app.use(
+    helmet({
+        hidePoweredBy: false,
+    })
+);
 app.use(morgan('dev'));
 app.use(express.json());
+
+// Use a middleware to set powered by header {Signature}
+app.use((_req: Request, res: Response, next: NextFunction) => {
+    res.setHeader('X-Powered-By', 'v01d');
+    next();
+});
 
 app.get('/', async (_req: Request, res: Response) => {
     const todos: Array<Todo> = await Todo.query().orderBy('created_at', 'desc');
